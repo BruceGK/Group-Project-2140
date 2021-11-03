@@ -4,3 +4,4 @@ vendor/*
 !vendor/*.sh
 .idea
 
+__pycache__
