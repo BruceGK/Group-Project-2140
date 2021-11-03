@@ -4,6 +4,8 @@ from tqdm import tqdm
 import sys
 import json
 
+def na_to_default(v, default=''):
+    return v if pd.notna(v) else default
 
 class DataLoader:
     def __init__(self, subfolder):
@@ -65,14 +67,11 @@ class DataLoader:
         return {
             'docno': paper_data['metadata']['cord_uid'],
             'sha1': paper_data['paper_id'],
-            'authors': ' '.join(
-                [' '.join(
-                    [author['first'], author['middle'], author['last']]
-                ) for author in paper_data['metadata']['authors']]),
+            'authors': paper_data['metadata']['authors'],
             'data': {
-                'title': paper_data['metadata']['title'],
-                'abstract': paper_data['metadata']['abstract'],
-                'main_text': main_text,
+                'title': na_to_default(paper_data['metadata']['title']),
+                'abstract': na_to_default(paper_data['metadata']['abstract']),
+                'main_text': na_to_default(main_text),
             }
         }
 
@@ -94,7 +93,7 @@ def main():
         row_data = loader.load_paper_data(r)
         if row_data is not None:
             # paper_data.append(row_data)
-            total_len += (len(row_data['main_text']))
+            total_len += (len(row_data['data']['main_text']))
         else:
             empty_count += 1
     metadata.progress_apply(process_row, axis=1)
