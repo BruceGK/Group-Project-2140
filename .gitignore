@@ -1,2 +1,6 @@
 venv
-cord_ir/data/*-*-*
+data/*-*-*
+vendor/*
+!vendor/*.sh
+.idea
+
