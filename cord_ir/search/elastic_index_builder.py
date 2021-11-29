@@ -42,7 +42,7 @@ def main():
     print(builder.info())
     res = builder.create_index("cord_test")
     print(res)
-    loader = DataLoader('../../data/2020-7-16')
+    loader = DataLoader('../../data/2020-07-16')
     metadata = loader.load_metadata()
     tqdm.pandas()
     cum_count = 0

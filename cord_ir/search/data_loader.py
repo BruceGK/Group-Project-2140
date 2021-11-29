@@ -10,6 +10,7 @@ def na_to_default(v, default=''):
 class DataLoader:
     def __init__(self, subfolder):
         self.subfolder = subfolder
+        self.doc_metadata_mapping = {}
         super().__init__()
 
     def load_valid_docids(self) -> list:
@@ -23,6 +24,11 @@ class DataLoader:
     def load_metadata(self) -> pd.DataFrame:
         res = pd.read_csv(path.join(self.subfolder, 'metadata.csv'), dtype=str)
         return res
+
+    def load_metadata_mappings(self, metadata):
+        def process_row(row):
+            self.doc_metadata_mapping[row['cord_uid']] = row
+        metadata.apply(process_row, axis=1)
 
     # load relevance score from TREC-COVID for evaluation
     def load_relevance(self) -> list:
@@ -42,8 +48,8 @@ class DataLoader:
     def load_paper_data(self, row) -> dict:
         file_path = ''
         if isinstance(row, str):
-            file_path = row
-        elif not pd.isna(row['pdf_json_files']):
+            row = self.doc_metadata_mapping[row]
+        if not pd.isna(row['pdf_json_files']):
             file_path = row['pdf_json_files'].split(';')[0]
         elif not pd.isna(row['pmc_json_files']):
             file_path = row['pmc_json_files'].split(';')[0]
