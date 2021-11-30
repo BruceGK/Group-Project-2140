@@ -1,0 +1,39 @@
+version: '3'
+services:
+  web:
+    build:
+      context: ./cord_web
+    container_name: cord_web
+    ports:
+      - "8088:80"
+    restart: always
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ./cord_ir
+    expose:
+      - 5000
+    depends_on:
+      - elastic
+    links:
+      - elastic
+    environment:
+      ES_URL: elastic
+    restart: always
+    volumes:
+      - ./data/:/app/data
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
+    expose:
+      - 9200
+      - 9300
+    volumes:
+      - ./data/elastic-indexes:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node

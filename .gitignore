@@ -1,4 +1,5 @@
 venv
+data/elastic-indexes
 data/*-*-*
 vendor/*
 !vendor/*.sh

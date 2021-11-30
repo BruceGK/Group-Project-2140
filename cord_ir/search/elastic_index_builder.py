@@ -1,6 +1,5 @@
 import sys
 import os
-import requests
 from elasticsearch import Elasticsearch, helpers
 from data_loader import DataLoader
 from tqdm import tqdm
@@ -9,11 +8,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 ES_HOST = getenv("ES_URL")
-
+DATA_DIR = getenv("CORD_DIR")
 
 class IndexBuilder:
     def __init__(self) -> None:
-        self.es = Elasticsearch(ES_HOST)
+        self.es = Elasticsearch(ES_HOST, request_timeout=90)
 
     def info(self):
         return self.es.info()
@@ -40,15 +39,21 @@ class IndexBuilder:
 def main():
     builder = IndexBuilder()
     print(builder.info())
+    try:
+        res = builder.delete_index("cord_test")
+        print(res)
+    except Exception as e:
+        print(e)
     res = builder.create_index("cord_test")
     print(res)
-    loader = DataLoader('../../data/2020-07-16')
+    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-07-16')
     metadata = loader.load_metadata()
     tqdm.pandas()
     cum_count = 0
     cum_data = []
 
     uidset = set()
+
     def process_row(r):
         nonlocal cum_count
         nonlocal cum_data
@@ -57,7 +62,7 @@ def main():
             uidset.add(row_data["docno"])
             cum_data.append(row_data)
             cum_count += 1
-            if cum_count % 10000 == 0:
+            if cum_count % 6000 == 0:
                 # flush to index
                 builder.insert_docs("cord_test", "paper", cum_data)
                 cum_data = []

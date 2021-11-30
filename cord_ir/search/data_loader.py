@@ -3,6 +3,8 @@ import pandas as pd
 from tqdm import tqdm
 import sys
 import json
+from os import getenv
+DATA_DIR = getenv("CORD_DIR")
 
 def na_to_default(v, default=''):
     return v if pd.notna(v) else default
@@ -83,7 +85,7 @@ class DataLoader:
 
 
 def main():
-    loader = DataLoader('../../data/2020-7-16')
+    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-7-16')
     print('relevance:', len(loader.load_relevance()))
     print('docids:', len(loader.load_valid_docids()))
     metadata = loader.load_metadata()

@@ -2,9 +2,11 @@ from flask import Flask
 from flask import request
 from search.elastic_index_reader import IndexReader
 from search.data_loader import DataLoader
+from os import getenv
 
 app = Flask(__name__)
-loader = DataLoader('../data/2020-07-16')
+DATA_DIR = getenv("CORD_DIR")
+loader = DataLoader(DATA_DIR if DATA_DIR else '../data/2020-07-16')
 loader.load_metadata_mappings(loader.load_metadata())
 
 @app.route("/")
