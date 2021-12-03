@@ -14,10 +14,17 @@ class IndexReader:
     def info(self):
         return self.es.info()
 
-    def search(self, index_name, query):
-        return self.es.search(index=index_name, _source=False,
-                              fields=["title"],
-                              query={"query_string": {"query": query}})
+    def search(self, index_name, query, start_from=0):
+        return self.es.search(
+            index=index_name,
+            _source=False,
+            from_=start_from,
+            size=20,
+            highlight={"fields": {"main_text": {
+                "number_of_fragments": 1, "fragment_size": 500}}},
+            fields=["title"],
+            query={"query_string": {"query": query}}
+        )
 
 
 def main():
