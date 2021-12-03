@@ -12,7 +12,7 @@ DATA_DIR = getenv("CORD_DIR")
 
 class IndexBuilder:
     def __init__(self) -> None:
-        self.es = Elasticsearch(ES_HOST, request_timeout=90)
+        self.es = Elasticsearch(ES_HOST, request_timeout=120, max_retries=10, retry_on_timeout=True)
 
     def info(self):
         return self.es.info()
@@ -62,7 +62,7 @@ def main():
             uidset.add(row_data["docno"])
             cum_data.append(row_data)
             cum_count += 1
-            if cum_count % 6000 == 0:
+            if cum_count % 2000 == 0:
                 # flush to index
                 builder.insert_docs("cord_test", "paper", cum_data)
                 cum_data = []
