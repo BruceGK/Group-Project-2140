@@ -85,7 +85,7 @@ class DataLoader:
 
 
 def main():
-    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-7-16')
+    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-07-16')
     print('relevance:', len(loader.load_relevance()))
     print('docids:', len(loader.load_valid_docids()))
     metadata = loader.load_metadata()
