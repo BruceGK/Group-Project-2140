@@ -32,11 +32,13 @@ class IndexReader:
             query={"query_string": {"query": query}}
         )
 
-    def tokenize(self, sentence):
-        return self.es.indices.analyze(body={
-            "tokenizer": "standard",
-            "text": sentence
-        })
+    def tokenize(self, sentence, index_name='cord_test'):
+        return self.es.indices.analyze(
+            index=index_name,
+            body={
+                "tokenizer": "standard",
+                "text": sentence,
+            })
 
 
 def main():
