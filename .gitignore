@@ -1,6 +1,7 @@
 venv
 data/elastic-indexes
 data/*-*-*
+data/trec_eval
 vendor/*
 !vendor/*.sh
 .idea
@@ -14,3 +15,4 @@ node_modules/
 
 
 
+.ipynb_checkpoints

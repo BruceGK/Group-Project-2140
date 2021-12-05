@@ -15,3 +15,6 @@ tar xf document_parses.tar.gz
 # tar xvf cord_19_embeddings.tar.gz
 rm document_parses.tar.gz
 rm cord_19_embeddings.tar.gz
+cd ..
+sh get_trec_eval.sh
+
