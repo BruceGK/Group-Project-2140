@@ -21,7 +21,7 @@ class IndexReader:
             query = query.replace(char, '\\' + char)
         highlight_config = {"fields": {"main_text": {
             "number_of_fragments": 1,
-            "fragment_size": 500}}} if highlight else None
+            "fragment_size": 150}}} if highlight else None
         return self.es.search(
             index=index_name,
             _source=False,
