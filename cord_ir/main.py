@@ -35,15 +35,15 @@ def mlsearch():
     start = request.args.get("start")
     if start == None:
         start = 0
-    if int(start) > 2980:
-        return 'Cannot search more than 3000 documents', 400
+    if int(start) > 180:
+        return 'Due to server limitation, we can only process the top 200 documents in ML mode', 400
     start = int(start)
     reader = IndexReader()
-    result = reader.search("cord_test", query, size=3000, highlight=False)
+    result = reader.search("cord_test", query, size=200)
     reranked = ranker.rank(query, result['hits']['hits'], loader)
     result['hits']['hits'] = reranked[start:start+20]
     result['hits']['total']['value'] = min(
-        result['hits']['total']['value'], 3000)
+        result['hits']['total']['value'], 200)
     return result['hits']
 
 
