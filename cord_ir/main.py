@@ -39,7 +39,7 @@ def mlsearch():
         return 'Cannot search more than 4000 documents', 400
     start = int(start)
     reader = IndexReader()
-    result = reader.search("cord_test", query, size=3000)
+    result = reader.search("cord_test", query, size=4000, highlight=False)
     reranked = ranker.rank(query, result['hits']['hits'], loader)
     result['hits']['hits'] = reranked[start:start+20]
     result['hits']['total']['value'] = min(
