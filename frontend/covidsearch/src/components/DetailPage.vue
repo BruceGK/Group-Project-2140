@@ -1,4 +1,5 @@
 <template>
+  <h1>Detail Page of the search result</h1>
 
 </template>
 
