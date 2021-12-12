@@ -81,6 +81,7 @@ class DataLoader:
             'docno': paper_data['metadata']['cord_uid'],
             'sha1': paper_data['paper_id'],
             'authors': paper_data['metadata']['authors'],
+            'url': paper_data['metadata']['url'],
             'data': {
                 'title': na_to_default(paper_data['metadata']['title']),
                 'abstract': na_to_default(paper_data['metadata']['abstract']),
