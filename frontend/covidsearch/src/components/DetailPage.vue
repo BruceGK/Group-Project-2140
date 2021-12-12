@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class = "title">
     <n-button  size="large" type="primary" @click = "GoHome" secondary strong>
       <template #icon>
         <n-icon>
@@ -8,9 +8,9 @@
       </template>
       Home Page
     </n-button>
-  </div>
-  <div>
     <n-h1>{{title}}</n-h1>
+  </div>
+  <div class = "main">
     <n-list bordered>
       <template #header>
         <n-tag type="success" v-for="author in authors" :key="author">
@@ -31,9 +31,9 @@
     </n-list-item>
     <n-list-item>
       <n-thing title="Main" />
-      <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
+      <n-scrollbar style="max-height: 800px;">
       {{content}}
-      </n-ellipsis>
+      </n-scrollbar>
     </n-list-item>
   </n-list>
 
@@ -94,5 +94,14 @@ export default {
 </script>
 
 <style scoped>
+.main{
+  margin-right: 100px;
+  margin-left: 100px;
+}
 
+.title{
+
+  margin-right: 50px;
+  margin-left: 50px;
+}
 </style>
