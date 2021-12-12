@@ -7,8 +7,7 @@ const routes =  [
     { path: '/', component: homePage },
     { path: '/detail/:id',
         name: DetailPage,
-        component: DetailPage,
-        porps: true
+        component: DetailPage
     }
   ]
 

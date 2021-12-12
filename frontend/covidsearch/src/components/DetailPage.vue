@@ -6,12 +6,14 @@
     <n-p>
     {{content}}
     </n-p>
-    <button @click="GetDetail">Greet</button>
+    <n-button @click="GetDetail">点它</n-button>
   </div>
+
 </template>
 
 
 <script>
+//this.$props.id
 import service from "../utils/network";
 import {ref} from "vue";
 
@@ -38,7 +40,7 @@ export default {
       console.log(queryStr.value);
       const resp = await service({
         method: "get",
-        url: "https://2140.miguch.com/api/details/",
+        url: "details/",
         params: {
           q: "banzkms3",
         },
