@@ -90,8 +90,11 @@ def mlsearch():
         return 'Due to server limitation, we can only process the top 200 documents in ML mode', 400
     start = int(start)
     reader = IndexReader()
-    result = reader.search("cord_test", query, size=200)
-    reranked = ranker.rank(query, result['hits']['hits'], loader)
+    results = []
+    for i in range(4):
+        result = reader.search("cord_test", query, size=50, start_from=i * 50)
+        results.extend(result['hits']['hits'])
+    reranked = ranker.rank(query, results, loader)
     result['hits']['hits'] = reranked[start:start+20]
     result['hits']['total']['value'] = min(
         result['hits']['total']['value'], 200)

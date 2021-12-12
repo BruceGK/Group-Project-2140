@@ -42,6 +42,7 @@
 <script>
 import service from "../utils/network"
 import { ref } from "vue"
+import { useMessage } from "naive-ui"
 export default {
   name: "homePage",
   props: {
@@ -68,10 +69,11 @@ export default {
       }
       // chekc if abstract hightlight, if not exist then chekc main text
     }
+    const message = useMessage()
 
     const onSearch = async () => {
       // console.log(queryStr.value);
-      if (searching.value) return
+      if (searching.value || !queryStr.value) return
       queryItems.value = []
       searching.value = true
       try {
@@ -102,6 +104,7 @@ export default {
         console.log("queryItems", queryItems.value)
       } catch (err) {
         console.log(err)
+        message.error("Failed to fetch search result")
       } finally {
         searching.value = false
       }
