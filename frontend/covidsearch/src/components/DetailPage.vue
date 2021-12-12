@@ -1,13 +1,28 @@
 <template>
   <div>
     <n-h1>{{title}}</n-h1>
-    <n-divider />
-    <n-tag type="success" v-for="author in authors" :key="author">
-    {{author}}
-    </n-tag>
-    <n-p>
+    <n-list bordered>
+      <template #header>
+        <n-tag type="success" v-for="author in authors" :key="author">
+          {{author}}
+        </n-tag>
+    </template>
+    <template #footer> End </template>
+    <n-list-item>
+
+      <n-thing title="Abstract" >
+        <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
+        {{abstract}}
+        </n-ellipsis>
+      </n-thing>
+    </n-list-item>
+    <n-list-item>
+      <n-thing title="Main" />
+      <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
       {{content}}
-    </n-p>
+      </n-ellipsis>
+    </n-list-item>
+  </n-list>
 
   </div>
 
