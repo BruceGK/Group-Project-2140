@@ -5,7 +5,10 @@ import homePage from '../components/homePage.vue';
 
 const routes =  [
     { path: '/', component: homePage },
-    { path: '/detail', component: DetailPage }
+    { path: '/detail/:id',
+        name: DetailPage,
+        component: DetailPage
+    }
   ]
 
 const router = createRouter({
