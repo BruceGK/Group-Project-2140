@@ -1,6 +1,13 @@
 <template>
   <div>
-    <n-button type="info" size="large" @click= "GoHome">Home</n-button>
+    <n-button  size="large" type="primary" @click = "GoHome" secondary strong>
+      <template #icon>
+        <n-icon>
+          <SearchSharp />
+        </n-icon>
+      </template>
+      Home Page
+    </n-button>
   </div>
   <div>
     <n-h1>{{title}}</n-h1>
@@ -36,12 +43,16 @@
 
 
 <script>
+import { SearchSharp } from '@vicons/ionicons5'
 import service from "../utils/network";
 //import {ref} from "vue";
 //    <n-button @click="GetDetail">点它</n-button>
 
 export default {
   name: "DetailPage",
+  components:{
+    SearchSharp
+  },
   data() {
     return {
       id : this.$route.params.id,
