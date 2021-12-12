@@ -12,7 +12,7 @@ def na_to_default(v, default=''):
 class DataLoader:
     def __init__(self, subfolder):
         self.subfolder = subfolder
-        self.doc_metadata_mapping = {}
+        self.metadata_csv = None
         super().__init__()
 
     def load_valid_docids(self) -> list:
@@ -29,9 +29,9 @@ class DataLoader:
         return res
 
     def load_metadata_mappings(self, metadata):
-        def process_row(row):
-            self.doc_metadata_mapping[row['cord_uid']] = row.to_dict()
-        metadata.apply(process_row, axis=1)
+        metadata = metadata.set_index('cord_uid')
+        metadata = metadata[pd.notna(metadata['pdf_json_files']) | pd.notna(metadata['pmc_json_files'])]
+        self.metadata_csv = metadata
 
     # load relevance score from TREC-COVID for evaluation
     def load_relevance(self) -> list:
@@ -51,7 +51,10 @@ class DataLoader:
     def load_paper_data(self, row) -> dict:
         file_path = ''
         if isinstance(row, str):
-            row = self.doc_metadata_mapping[row]
+            # row = self.metadata_csv.iloc[self.doc_metadata_mapping[row]]
+            row = self.metadata_csv.iloc[self.metadata_csv.index.get_loc(row)]
+            if len(row.shape) > 1:
+                row = row.iloc[0]
         if not pd.isna(row['pdf_json_files']):
             file_path = row['pdf_json_files'].split(';')[0]
         elif not pd.isna(row['pmc_json_files']):
@@ -62,7 +65,7 @@ class DataLoader:
             data = json.load(f)
             main_text = self.get_full_body_text(data)
             row_dict = row if isinstance(row, dict) else row.to_dict()
-            data['metadata'] = {**data['metadata'], **row_dict}
+            data['metadata'] = {**data['metadata'], **row_dict, 'cord_uid': row.name}
             return self.prepare_paper_data(data, main_text)
 
     # take out the text part from paper's body

@@ -9,7 +9,7 @@ from flask import jsonify
 
 app = Flask(__name__)
 DATA_DIR = getenv("CORD_DIR")
-loader = DataLoader(DATA_DIR if DATA_DIR else '../data/2020-07-16')
+loader = DataLoader(DATA_DIR if DATA_DIR else '../data/2021-03-08')
 loader.load_metadata_mappings(loader.load_metadata())
 ranker = MlRanker("../data/models/ranker.joblib",
                   '../data/models/tfidf.joblib',
@@ -71,7 +71,7 @@ def boolean():
     return result['hits']
 
 
-@ app.route("/search")
+@app.route("/search")
 def search():
     query = request.args.get("q")
     reader = IndexReader()
@@ -80,19 +80,27 @@ def search():
     return result['hits']
 
 
-@ app.route("/mlsearch")
+@app.route("/mlsearch")
 def mlsearch():
     query = request.args.get("q")
     start = request.args.get("start")
     if start == None:
         start = 0
-    if int(start) > 180:
-        return 'Due to server limitation, we can only process the top 200 documents in ML mode', 400
+    if int(start) > 480:
+        return 'Due to server limitation, we can only process the top 500 documents in ML mode', 400
     start = int(start)
     reader = IndexReader()
-    result = reader.search("cord_test", query, size=200)
+    # fetch without highlight first
+    result = reader.search("cord_test", query, size=500, highlight=False)
     reranked = ranker.rank(query, result['hits']['hits'], loader)
-    result['hits']['hits'] = reranked[start:start+20]
+    selectedList = reranked[start:start+20]
+    refetched = reader.get_from_ids("cord_test", list(map(
+        lambda e: e['_id'], selectedList)),
+        query, size=len(selectedList))['hits']['hits']
+    new_result = []
+    for item in selectedList:
+        new_result.extend([e for e in refetched if e['_id'] == item['_id']])
+    result['hits']['hits'] = new_result
     result['hits']['total']['value'] = min(
         result['hits']['total']['value'], 200)
     return result['hits']

@@ -46,7 +46,8 @@ def main():
         print(e)
     res = builder.create_index("cord_test")
     print(res)
-    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-07-16')
+    # loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2020-07-16')
+    loader = DataLoader(DATA_DIR if DATA_DIR else '../../data/2021-03-08')
     metadata = loader.load_metadata()
     tqdm.pandas()
     cum_count = 0
