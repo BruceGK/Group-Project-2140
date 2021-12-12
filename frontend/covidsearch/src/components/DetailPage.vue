@@ -7,7 +7,10 @@
           {{author}}
         </n-tag>
     </template>
-    <template #footer> End </template>
+    <template #footer>
+      MIT License <br />
+      Copyright (c) 2021 Chenming Tao, Xiaoxin He, Chenhao Huang <br />
+    </template>
     <n-list-item>
 
       <n-thing title="Abstract" >
