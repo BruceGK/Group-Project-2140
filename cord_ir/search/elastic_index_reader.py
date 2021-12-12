@@ -56,7 +56,7 @@ class IndexReader:
             },
             "title": {
                 "number_of_fragments": 1,
-                "fragment_size": 150
+                "fragment_size": 2000
             }
         }} if highlight else None
         return self.es.search(
