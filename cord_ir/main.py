@@ -86,16 +86,21 @@ def mlsearch():
     start = request.args.get("start")
     if start == None:
         start = 0
-    if int(start) > 180:
-        return 'Due to server limitation, we can only process the top 200 documents in ML mode', 400
+    if int(start) > 480:
+        return 'Due to server limitation, we can only process the top 500 documents in ML mode', 400
     start = int(start)
     reader = IndexReader()
-    results = []
-    for i in range(4):
-        result = reader.search("cord_test", query, size=50, start_from=i * 50)
-        results.extend(result['hits']['hits'])
-    reranked = ranker.rank(query, results, loader)
-    result['hits']['hits'] = reranked[start:start+20]
+    # fetch without highlight first
+    result = reader.search("cord_test", query, size=500, highlight=False)
+    reranked = ranker.rank(query, result['hits']['hits'], loader)
+    selectedList = reranked[start:start+20]
+    refetched = reader.get_from_ids("cord_test", list(map(
+        lambda e: e['_id'], selectedList)),
+        query, size=len(selectedList))['hits']['hits']
+    new_result = []
+    for item in selectedList:
+        new_result.extend([e for e in refetched if e['_id'] == item['_id']])
+    result['hits']['hits'] = new_result
     result['hits']['total']['value'] = min(
         result['hits']['total']['value'], 200)
     return result['hits']
