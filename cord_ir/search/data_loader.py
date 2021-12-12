@@ -30,6 +30,7 @@ class DataLoader:
 
     def load_metadata_mappings(self, metadata):
         metadata = metadata.set_index('cord_uid')
+        metadata = metadata[pd.notna(metadata['pdf_json_files']) | pd.notna(metadata['pmc_json_files'])]
         self.metadata_csv = metadata
 
     # load relevance score from TREC-COVID for evaluation
@@ -52,6 +53,8 @@ class DataLoader:
         if isinstance(row, str):
             # row = self.metadata_csv.iloc[self.doc_metadata_mapping[row]]
             row = self.metadata_csv.iloc[self.metadata_csv.index.get_loc(row)]
+            if len(row.shape) > 1:
+                row = row.iloc[0]
         if not pd.isna(row['pdf_json_files']):
             file_path = row['pdf_json_files'].split(';')[0]
         elif not pd.isna(row['pmc_json_files']):
