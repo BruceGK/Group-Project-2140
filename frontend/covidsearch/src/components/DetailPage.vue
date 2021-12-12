@@ -1,5 +1,8 @@
 <template>
   <div>
+    <n-button type="info" size="large" @click= "GoHome">Home</n-button>
+  </div>
+  <div>
     <n-h1>{{title}}</n-h1>
     <n-list bordered>
       <template #header>
@@ -62,7 +65,12 @@ export default {
      this.content = resp.data.main_text;
      this.authors = resp.authors.split(";");
      this.abstract = resp.data.abstract
-   }
+   },
+    GoHome(){
+     this.$router.push({
+			path: '/'
+		});
+    }
 
   },
   setup() {
