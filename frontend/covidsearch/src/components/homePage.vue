@@ -25,6 +25,7 @@
           <router-link :to="'/detail/' + query.id">
           <div v-html="query.title"></div>
           </router-link>
+          <div v-html="query.mainText" class="main_text"></div>
        </n-list-item>
       </div>
     </n-list>
@@ -45,11 +46,12 @@ export default {
     const queryItems = ref([]);
 
     const onLoadQueryItems = (currentRawObj) => {
-      let obj = {id: "", title: ""}
+      let obj = {id: "", title: "", mainText: ""}
       for(const value of Object.values(currentRawObj)) {
         obj = {}
         obj.id = value._id
         obj.title = value.highlight?.title ? value.highlight.title[0] : value.fields.title[0]
+        obj.mainText = value.highlight?.main_text? value.highlight.main_text[0] : ""
         queryItems.value.push(obj)
       }
       // chekc if abstract hightlight, if not exist then chekc main text
@@ -90,5 +92,9 @@ export default {
 
 em {
   font-weight: bold;
+}
+
+.main_text em{
+  color: red
 }
 </style>
