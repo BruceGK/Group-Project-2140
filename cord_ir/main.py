@@ -9,7 +9,7 @@ from flask import jsonify
 
 app = Flask(__name__)
 DATA_DIR = getenv("CORD_DIR")
-loader = DataLoader(DATA_DIR if DATA_DIR else '../data/2020-07-16')
+loader = DataLoader(DATA_DIR if DATA_DIR else '../data/2021-03-08')
 loader.load_metadata_mappings(loader.load_metadata())
 ranker = MlRanker("../data/models/ranker.joblib",
                   '../data/models/tfidf.joblib',

@@ -104,7 +104,11 @@ export default {
         console.log("queryItems", queryItems.value)
       } catch (err) {
         console.log(err)
-        message.error("Failed to fetch search result")
+        if (err.response?.status == 400) {
+          message.error(err.response.data)
+        } else {
+          message.error("Failed to fetch search result")
+        }
       } finally {
         searching.value = false
       }
@@ -130,7 +134,7 @@ export default {
 }
 .search-results {
   width: 65%;
-  margin: 0 auto;
+  margin: 12px auto;
 }
 
 em {
@@ -138,6 +142,6 @@ em {
 }
 
 .main_text em {
-  color: red;
+  color: #ea4335;
 }
 </style>
