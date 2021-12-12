@@ -102,7 +102,7 @@ def mlsearch():
         new_result.extend([e for e in refetched if e['_id'] == item['_id']])
     result['hits']['hits'] = new_result
     result['hits']['total']['value'] = min(
-        result['hits']['total']['value'], 200)
+        result['hits']['total']['value'], 500)
     return result['hits']
 
 
