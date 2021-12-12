@@ -12,17 +12,23 @@
   </div>
   <div class = "main">
     <n-list bordered>
-      <template #header>
-        <n-tag type="success" v-for="author in authors" :key="author">
+      <template #header title="Authors">
+        <div>
+           <n-tag type="success" v-for="author in authors" :key="author">
           {{author}}
         </n-tag>
+
+        </div>
+         <n-divider />
+        <div><n-button type="info"  @click="Golink" dashed>Take me to Article Page</n-button></div>
+
+
     </template>
     <template #footer>
       MIT License <br />
       Copyright (c) 2021 Mingtao Chen, Xiaoxin He, Chenhao Huang <br />
     </template>
     <n-list-item>
-
       <n-thing title="Abstract" >
         <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
         {{abstract}}
@@ -31,6 +37,7 @@
     </n-list-item>
     <n-list-item>
       <n-thing title="Main" />
+      <n-back-top :right="100" />
       <n-scrollbar style="max-height: 800px;">
       {{content}}
       </n-scrollbar>
@@ -47,21 +54,24 @@ import { SearchSharp } from '@vicons/ionicons5'
 import service from "../utils/network";
 //import {ref} from "vue";
 //    <n-button @click="GetDetail">点它</n-button>
-
+import {computed } from 'vue'
 export default {
   name: "DetailPage",
   components:{
     SearchSharp
   },
+
   data() {
     return {
-      id : this.$route.params.id,
+      id : computed(() => this.$route.params.id),
       title: "",
       content: "",
       authors: [],
-      abstract : ""
+      abstract : "",
+      url: ""
     }
   },
+
   methods:{
    async GetDetail() {
      // `this` will refer to the component instance
@@ -76,11 +86,15 @@ export default {
      this.content = resp.data.main_text;
      this.authors = resp.authors.split(";");
      this.abstract = resp.data.abstract
+     this.url = resp.url
    },
     GoHome(){
      this.$router.push({
 			path: '/'
 		});
+    },
+    Golink(){
+     window.open(this.url);
     }
 
   },
