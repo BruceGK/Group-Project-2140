@@ -19,7 +19,7 @@
     </template>
     <template #footer>
       MIT License <br />
-      Copyright (c) 2021 Chenming Tao, Xiaoxin He, Chenhao Huang <br />
+      Copyright (c) 2021 Mingtao Chen, Xiaoxin He, Chenhao Huang <br />
     </template>
     <n-list-item>
 
