@@ -71,7 +71,7 @@ def boolean():
     return result['hits']
 
 
-@ app.route("/search")
+@app.route("/search")
 def search():
     query = request.args.get("q")
     reader = IndexReader()
@@ -80,7 +80,7 @@ def search():
     return result['hits']
 
 
-@ app.route("/mlsearch")
+@app.route("/mlsearch")
 def mlsearch():
     query = request.args.get("q")
     start = request.args.get("start")
