@@ -1,57 +1,58 @@
 <template>
   <div>
-  <h1>Detail Page of the search result</h1>
-    <n-divider />
     <n-h1>{{title}}</n-h1>
+    <n-divider />
+    <n-tag type="success" v-for="author in authors" :key="author">
+    {{author}}
+    </n-tag>
     <n-p>
-    {{content}}
+      {{content}}
     </n-p>
-    <n-button @click="GetDetail">点它</n-button>
+
   </div>
 
 </template>
 
 
 <script>
-//this.$props.id
 import service from "../utils/network";
-import {ref} from "vue";
+//import {ref} from "vue";
+//    <n-button @click="GetDetail">点它</n-button>
 
 export default {
   name: "DetailPage",
-  props: {
-    id: String
-  },
   data() {
     return {
-      title : "金瓶梅",
-      content : "《金瓶梅》，中国明代长篇白话世情小说，一般认为是中国第一部文人独立创作的章回体长篇小说。" +
-          "其成书时间大约在明代隆庆至万历年间，作者署名兰陵笑笑生。《金瓶梅》书名由书中三个女主人公潘金莲、李瓶儿、" +
-          "庞春梅名字中各取一字合成。小说题材由《水浒传》中武松杀嫂一段演化而来，通过对兼有官僚、恶霸、" +
-          "富商三种身份的市侩势力代表人物西门庆及其家庭罪恶生活的描述，再现了当时社会民间生活的面貌，" +
-          "描绘了一个上至朝廷擅权专政的太师，下至地方官僚恶霸乃至市井地痞、流氓、帮闲所构成的鬼蜮世界，" +
-          "揭露了明代中叶社会的黑暗和腐败，具有深刻的认识价值。"
-
+      id : this.$route.params.id,
+      title: "",
+      content: "",
+      authors: [],
+      abstract : ""
     }
   },
-  setup() {
-    const queryStr = ref("");
-    const GetDetail = async () => {
-      console.log(queryStr.value);
-      const resp = await service({
-        method: "get",
-        url: "details/",
-        params: {
-          q: "banzkms3",
-        },
-      });
-      console.log(resp);
-    };
-    return {
-      queryStr,
-      GetDetail,
-    };
+  methods:{
+   async GetDetail() {
+     // `this` will refer to the component instance
+     //console.log(this.$data.id);
+     let link = "details/".concat(this.id);
+     const resp = await service({
+       method: "get",
+       url: link
+     });
+     console.log(resp);
+     this.title = resp.data.title;
+     this.content = resp.data.main_text;
+     this.authors = resp.authors.split(";");
+     this.abstract = resp.data.abstract
+   }
+
   },
+  setup() {
+
+  },
+  beforeMount(){
+    this.GetDetail()
+ },
 }
 </script>
 
