@@ -1,3 +1,4 @@
+# 84143 useful records
 # qrels-covid_d5_j0.5-5.txt
 wget -N https://ir.nist.gov/covidSubmit/data/qrels-covid_d5_j0.5-5.txt
 # topics-rnd5.xml
@@ -11,6 +12,9 @@ mkdir -p 2020-07-16/eval
 mv qrels-covid_d5_j0.5-5.txt topics-rnd5.xml docids-rnd5.txt 2020-07-16/eval
 cd 2020-07-16
 tar xf document_parses.tar.gz
-tar xvf cord_19_embeddings.tar.gz
+# tar xvf cord_19_embeddings.tar.gz
 rm document_parses.tar.gz
 rm cord_19_embeddings.tar.gz
+cd ..
+sh get_trec_eval.sh
+

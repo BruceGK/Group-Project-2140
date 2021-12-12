@@ -25,11 +25,12 @@ class DataLoader:
     # load metadata list
     def load_metadata(self) -> pd.DataFrame:
         res = pd.read_csv(path.join(self.subfolder, 'metadata.csv'), dtype=str)
+        self.metadata = res
         return res
 
     def load_metadata_mappings(self, metadata):
         def process_row(row):
-            self.doc_metadata_mapping[row['cord_uid']] = row
+            self.doc_metadata_mapping[row['cord_uid']] = row.to_dict()
         metadata.apply(process_row, axis=1)
 
     # load relevance score from TREC-COVID for evaluation
@@ -60,7 +61,8 @@ class DataLoader:
         with open(path.join(self.subfolder, file_path), 'r') as f:
             data = json.load(f)
             main_text = self.get_full_body_text(data)
-            data['metadata'] = {**data['metadata'], **row.to_dict()}
+            row_dict = row if isinstance(row, dict) else row.to_dict()
+            data['metadata'] = {**data['metadata'], **row_dict}
             return self.prepare_paper_data(data, main_text)
 
     # take out the text part from paper's body
