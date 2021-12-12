@@ -91,7 +91,7 @@ def mlsearch():
     start = int(start)
     reader = IndexReader()
     # fetch without highlight first
-    result = reader.search("cord_test", query, size=500, highlight=False)
+    result = reader.search("cord_test", query, size=500, fields=[], highlight=False)
     reranked = ranker.rank(query, result['hits']['hits'], loader)
     selectedList = reranked[start:start+20]
     refetched = reader.get_from_ids("cord_test", list(map(
