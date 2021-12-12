@@ -6,16 +6,20 @@
     <n-p>
     {{content}}
     </n-p>
+    <button @click="GetDetail">Greet</button>
   </div>
 </template>
 
 
 <script>
-
+import service from "../utils/network";
+import {ref} from "vue";
 
 export default {
   name: "DetailPage",
-
+  props: {
+    id: String
+  },
   data() {
     return {
       title : "金瓶梅",
@@ -27,6 +31,24 @@ export default {
           "揭露了明代中叶社会的黑暗和腐败，具有深刻的认识价值。"
 
     }
+  },
+  setup() {
+    const queryStr = ref("");
+    const GetDetail = async () => {
+      console.log(queryStr.value);
+      const resp = await service({
+        method: "get",
+        url: "https://2140.miguch.com/api/details/",
+        params: {
+          q: "banzkms3",
+        },
+      });
+      console.log(resp);
+    };
+    return {
+      queryStr,
+      GetDetail,
+    };
   },
 }
 </script>
