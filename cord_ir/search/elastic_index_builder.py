@@ -10,15 +10,44 @@ load_dotenv()
 ES_HOST = getenv("ES_URL")
 DATA_DIR = getenv("CORD_DIR")
 
+
 class IndexBuilder:
     def __init__(self) -> None:
-        self.es = Elasticsearch(ES_HOST, request_timeout=120, max_retries=10, retry_on_timeout=True)
+        self.es = Elasticsearch(
+            ES_HOST, request_timeout=120, max_retries=10, retry_on_timeout=True)
 
     def info(self):
         return self.es.info()
 
     def create_index(self, name):
-        return self.es.indices.create(index=name, ignore=400)
+        return self.es.indices.create(index=name, settings={
+            "analysis": {
+                "analyzer": {
+                    "my_analyzer": {
+                        "tokenizer": "whitespace",
+                        "filter": [
+                            "lowercase",
+                            "porter_stem"
+                        ]
+                    }
+                }
+            }
+        }, mappings={
+            "properties": {
+                "title": {
+                    "type": "text",
+                    "analyzer": "my_analyzer"
+                },
+                "abstract": {
+                    "type": "text",
+                    "analyzer": "my_analyzer"
+                },
+                "main_text": {
+                    "type": "text",
+                    "analyzer": "my_analyzer"
+                }
+            }
+        }, ignore=400)
 
     def delete_index(self, name):
         return self.es.indices.delete(index=name, ignore=400)
