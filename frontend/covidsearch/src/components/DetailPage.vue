@@ -17,7 +17,7 @@
       <n-list bordered>
         <template #header title="Authors">
           <div>
-            <n-tag type="success" v-for="author in authors" :key="author">
+            <n-tag class="authors" type="success" v-for="author in authors" :key="author">
               {{ author }}
             </n-tag>
           </div>
@@ -134,6 +134,10 @@ export default {
 .main {
   margin-right: 100px;
   margin-left: 100px;
+}
+
+.authors {
+  margin: 0 2px;
 }
 
 .title {
