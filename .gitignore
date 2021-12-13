@@ -17,3 +17,4 @@ node_modules/
 
 
 .ipynb_checkpoints
+frontend/covidsearch/package-lock.json
