@@ -1,5 +1,5 @@
 <template>
-  <n-radio-group v-model:value="searchMode" name="searchmode">
+  <n-radio-group v-model:value="searchMode" name="searchmode" @change="onSwitchSearchMode(searchMode)">
     <n-radio-button value="keyword"> Keyword </n-radio-button>
     <n-radio-button value="ml"> Machine Learning </n-radio-button>
     <n-radio-button value="boolean"> Boolean </n-radio-button>
@@ -34,11 +34,13 @@
       </n-button>
       <n-input-group>
       <n-select :style="{ width: '33%' }" :options="typeOptions" v-model:value="item.type"/>
-      <n-input :style="{ width: '70%' }" v-model:value="item.query"/>
+      <!-- v-model:value="item.query" -->
+      <n-input :style="{ width: '70%' }" v-model:value="queryStr"/>
       <n-select :style="{ width: '33%' }" :options="fieldOptions" v-model:value="item.field"/>
     </n-input-group>
     </n-form-item>
     <n-icon size="40" @click="onAddSelections"><AddCircle24Filled/></n-icon>
+    <n-button strong secondary round type="success" @click="onSearch">Search</n-button>
   </n-form>
 
   <n-list class="search-results" bordered>
@@ -85,8 +87,16 @@ export default {
       { label: 'Main_text', value: 'main_text'}
     ])
     const addSelection = ref([{type: 'and', query: '', field: 'title'}])
+    const searchModeData = ref({})
 
-    const onLoadQueryItems = (currentRawObj) => {
+    const onSwitchSearchMode = (curSearchMode) => {
+      queryItems.value = []
+      if (Object.keys(searchModeData.value).includes(curSearchMode)) {
+        queryItems.value = searchModeData.value[curSearchMode]
+      }
+    }
+
+    const onLoadQueryItems = (searchMode,currentRawObj) => {
       let obj = { id: "", title: "", mainText: "" }
       for (const value of Object.values(currentRawObj)) {
         obj = {}
@@ -99,7 +109,7 @@ export default {
           : ""
         queryItems.value.push(obj)
       }
-      // chekc if abstract hightlight, if not exist then chekc main text
+      searchModeData.value[searchMode] = queryItems.value
     }
     const message = useMessage()
 
@@ -112,7 +122,7 @@ export default {
     }
 
     const onSearch = async () => {
-      // console.log(queryStr.value);
+      console.log(queryStr.value);
       if (searching.value || !queryStr.value) return
       queryItems.value = []
       searching.value = true
@@ -135,12 +145,30 @@ export default {
             },
           })
         } else if (searchMode.value === "boolean") {
+          console.log("boolean search hit")
           // TODO...
+          resp = await service({
+            method: "post",
+            url: "/boolean",
+            data: {
+                "queries": [
+                    {
+                        "query": "123",
+                        "field": "title",
+                        "type": "and"
+                    }
+                ],
+                "start": "1"
+            },
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
         }
 
-        console.log(resp)
+        console.log("resp",resp)
         // queryItems.value = resp.hits;
-        onLoadQueryItems(resp.hits)
+        onLoadQueryItems(searchMode.value,resp.hits)
         console.log("queryItems", queryItems.value)
       } catch (err) {
         console.log(err)
@@ -164,7 +192,9 @@ export default {
       fieldOptions,
       onDeleteSelections,
       onAddSelections,
-      addSelection
+      addSelection,
+      onSwitchSearchMode,
+      searchModeData
     }
   },
 }
