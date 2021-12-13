@@ -1228,6 +1228,16 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@vicons/fa@^0.11.0":
+  "integrity" "sha512-Mlv4sxlghqAPu+RM+6w0/GIcsQFK/fx1syw1HkABS6MJRLwHOqbmImCYZQam7OMAYhZBs82YpY5cp2NFSgwkOA=="
+  "resolved" "https://registry.npmjs.org/@vicons/fa/-/fa-0.11.0.tgz"
+  "version" "0.11.0"
+
+"@vicons/fluent@^0.11.0":
+  "integrity" "sha512-5sbdKLijk5/PBtsapDjBodskSCrfOsqOlpCbXQ33pZmY0VZ62N46Yq6SFJXHyUgFhjvReRrFe4wCGVAktchHFg=="
+  "resolved" "https://registry.npmjs.org/@vicons/fluent/-/fluent-0.11.0.tgz"
+  "version" "0.11.0"
+
 "@vicons/ionicons5@^0.11.0":
   "integrity" "sha512-4IWamqtXUsuCdlW6NQc2xyoJ+PUXGMwzSrppQbdVCYg0pjYld89jOfLOIkuTWq8o2XUa+Q1/78jzWBtXMTojNg=="
   "resolved" "https://registry.npmjs.org/@vicons/ionicons5/-/ionicons5-0.11.0.tgz"

@@ -27,6 +27,20 @@
     </n-form-item>
   </n-form>
 
+  <n-form class="search-wrapper" v-if="searchMode === 'boolean'">
+    <n-form-item v-for="(item, index) in addSelection" :key="index">
+      <n-button @click="onDeleteSelections(index)">
+      <n-icon size="30"><Trash/></n-icon>
+      </n-button>
+      <n-input-group>
+      <n-select :style="{ width: '33%' }" :options="typeOptions" v-model:value="item.type"/>
+      <n-input :style="{ width: '70%' }" v-model:value="item.query"/>
+      <n-select :style="{ width: '33%' }" :options="fieldOptions" v-model:value="item.field"/>
+    </n-input-group>
+    </n-form-item>
+    <n-icon size="40" @click="onAddSelections"><AddCircle24Filled/></n-icon>
+  </n-form>
+
   <n-list class="search-results" bordered>
     <div v-for="query of queryItems" :key="query.id">
       <n-list-item>
@@ -43,16 +57,34 @@
 import service from "../utils/network"
 import { ref } from "vue"
 import { useMessage } from "naive-ui"
+import { AddCircle24Filled } from '@vicons/fluent'
+import { Trash } from '@vicons/fa'
+
 export default {
   name: "homePage",
   props: {
     msg: String,
+  },
+  components: {
+    AddCircle24Filled,
+    Trash
   },
   setup() {
     const queryStr = ref("")
     const queryItems = ref([])
     const searchMode = ref("keyword")
     const searching = ref(false)
+    const typeOptions = ref([
+        { label: 'And', value: 'and' },
+        { label: 'Or', value: 'or' },
+        { label: 'Not', value: 'not' }
+    ])
+    const fieldOptions = ref([
+      { label: 'Title', value: 'title'},
+      { label: 'Abstract', value: 'abstract' },
+      { label: 'Main_text', value: 'main_text'}
+    ])
+    const addSelection = ref([{type: 'and', query: '', field: 'title'}])
 
     const onLoadQueryItems = (currentRawObj) => {
       let obj = { id: "", title: "", mainText: "" }
@@ -70,6 +102,14 @@ export default {
       // chekc if abstract hightlight, if not exist then chekc main text
     }
     const message = useMessage()
+
+    const onDeleteSelections = (index) => {
+      addSelection.value.splice(index, 1);
+    }
+
+    const onAddSelections = () => {
+      addSelection.value.push({type: 'and', query: '', field: 'title'})
+    }
 
     const onSearch = async () => {
       // console.log(queryStr.value);
@@ -120,6 +160,11 @@ export default {
       queryItems,
       searchMode,
       searching,
+      typeOptions,
+      fieldOptions,
+      onDeleteSelections,
+      onAddSelections,
+      addSelection
     }
   },
 }
