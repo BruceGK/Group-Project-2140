@@ -27,18 +27,20 @@
     </n-form-item>
   </n-form>
 
-  <n-form class="search-wrapper" v-if="searchMode === 'boolean'">
+  <n-form :show-feedback="false" class="search-wrapper" v-if="searchMode === 'boolean'">
     <n-form-item v-for="(item, index) in addSelection" :key="index">
-      <n-button @click="onDeleteSelections(index)">
-      <n-icon size="30"><Trash/></n-icon>
-      </n-button>
       <n-input-group>
-      <n-select :style="{ width: '33%' }" :options="typeOptions" v-model:value="item.type"/>
-      <n-input :style="{ width: '70%' }" v-model:value="item.query"/>
-      <n-select :style="{ width: '33%' }" :options="fieldOptions" v-model:value="item.field"/>
+      <n-button :disabled="index == 0" style="width: 10%" @click="onDeleteSelections(index)">
+      <n-icon size="20"><Trash/></n-icon>
+      </n-button>
+      <n-select :style="{ width: '15%' }" :options="typeOptions" v-model:value="item.type"/>
+      <n-input :style="{ width: '60%' }" v-model:value="item.query"/>
+      <n-select :style="{ width: '15%' }" :options="fieldOptions" v-model:value="item.field"/>
     </n-input-group>
     </n-form-item>
-    <n-icon size="40" @click="onAddSelections"><AddCircle24Filled/></n-icon>
+    <n-button style="margin-top: 12px;" @click="onAddSelections" type="primary" circle>
+      <n-icon size="40"><AddCircle24Filled/></n-icon>
+    </n-button>
   </n-form>
 
   <n-list class="search-results" bordered>
