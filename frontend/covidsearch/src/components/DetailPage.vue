@@ -1,60 +1,143 @@
 <template>
-  <div>
-  <h1>Detail Page of the search result</h1>
-    <n-divider />
-    <n-h1>{{title}}</n-h1>
-    <n-p>
-    {{content}}
-    </n-p>
-    <n-button @click="GetDetail">点它</n-button>
-  </div>
-
+  <n-spin :show="loading">
+    <div class="title">
+      <router-link to="/" style="text-decoration: none">
+        <n-button size="large" type="primary" secondary strong>
+          <template #icon>
+            <n-icon>
+              <SearchSharp />
+            </n-icon>
+          </template>
+          Home Page
+        </n-button>
+      </router-link>
+      <n-h1>{{ title }}</n-h1>
+    </div>
+    <div class="main">
+      <n-list bordered>
+        <template #header title="Authors">
+          <div>
+            <n-tag type="success" v-for="author in authors" :key="author">
+              {{ author }}
+            </n-tag>
+          </div>
+          <n-divider />
+          <div v-if="url">
+            <a style="text-decoration: none" :href="url" target="_blank">
+              <n-button type="info" dashed>Take me to Article Page</n-button>
+            </a>
+          </div>
+        </template>
+        <template #footer>
+          MIT License <br />
+          Copyright (c) 2021 Mingtao Chen, Xiaoxin He, Chenhao Huang <br />
+        </template>
+        <n-list-item>
+          <n-thing title="Abstract">
+            <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
+              {{ abstract }}
+            </n-ellipsis>
+          </n-thing>
+        </n-list-item>
+        <n-list-item>
+          <n-thing title="Main" />
+          <n-back-top :right="100" />
+          <n-scrollbar style="max-height: 800px">
+            {{ content }}
+          </n-scrollbar>
+        </n-list-item>
+      </n-list>
+    </div>
+  </n-spin>
 </template>
 
-
 <script>
-//this.$props.id
-import service from "../utils/network";
-import {ref} from "vue";
-
+import { SearchSharp } from "@vicons/ionicons5"
+import service from "../utils/network"
+//import {ref} from "vue";
+//    <n-button @click="GetDetail">点它</n-button>
+import { computed } from "vue"
+import { useLoadingBar, useMessage } from "naive-ui"
 export default {
   name: "DetailPage",
-  props: {
-    id: String
+  components: {
+    SearchSharp,
   },
+
   data() {
     return {
-      title : "金瓶梅",
-      content : "《金瓶梅》，中国明代长篇白话世情小说，一般认为是中国第一部文人独立创作的章回体长篇小说。" +
-          "其成书时间大约在明代隆庆至万历年间，作者署名兰陵笑笑生。《金瓶梅》书名由书中三个女主人公潘金莲、李瓶儿、" +
-          "庞春梅名字中各取一字合成。小说题材由《水浒传》中武松杀嫂一段演化而来，通过对兼有官僚、恶霸、" +
-          "富商三种身份的市侩势力代表人物西门庆及其家庭罪恶生活的描述，再现了当时社会民间生活的面貌，" +
-          "描绘了一个上至朝廷擅权专政的太师，下至地方官僚恶霸乃至市井地痞、流氓、帮闲所构成的鬼蜮世界，" +
-          "揭露了明代中叶社会的黑暗和腐败，具有深刻的认识价值。"
-
+      id: computed(() => this.$route.params.id),
+      title: "",
+      content: "",
+      authors: [],
+      abstract: "",
+      url: "",
+      loading: false,
     }
   },
+
+  methods: {
+    async GetDetail() {
+      // `this` will refer to the component instance
+      //console.log(this.$data.id);
+      this.loadingBar.start()
+      this.loading = true
+      try {
+        let link = "details/".concat(this.id)
+        const resp = await service({
+          method: "get",
+          url: link,
+        })
+        console.log(resp)
+        this.title = resp.data.title
+        this.content = resp.data.main_text
+        this.authors = resp.authors.split(";")
+        this.abstract = resp.data.abstract
+        this.url = resp.url
+        this.loadingBar.finish()
+      } catch (err) {
+        console.log(err)
+        this.loadingBar.error()
+        if (err.response?.status == 400) {
+          this.message.error(err.response.data)
+        } else {
+          this.message.error("Failed to fetch detail data")
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+    GoHome() {
+      this.$router.push({
+        path: "/",
+      })
+    },
+    Golink() {
+      window.open(this.url)
+    },
+  },
   setup() {
-    const queryStr = ref("");
-    const GetDetail = async () => {
-      console.log(queryStr.value);
-      const resp = await service({
-        method: "get",
-        url: "details/",
-        params: {
-          q: "banzkms3",
-        },
-      });
-      console.log(resp);
-    };
+    const loadingBar = useLoadingBar()
+    const message = useMessage()
     return {
-      queryStr,
-      GetDetail,
-    };
+      loadingBar,
+      message,
+    }
+  },
+  activated() {
+    this.GetDetail()
   },
 }
 </script>
 
 <style scoped>
+.main {
+  margin-right: 100px;
+  margin-left: 100px;
+}
 
+.title {
+  margin-right: 50px;
+  margin-left: 50px;
+}
 </style>

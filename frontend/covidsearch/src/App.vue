@@ -17,8 +17,16 @@
       ></path>
     </svg>
   </n-icon>
-  <div class="page-title">CovidSearch</div>
-  <router-view />
+  <n-message-provider>
+    <n-loading-bar-provider>
+      <div class="page-title">CovidSearch</div>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+    </n-loading-bar-provider>
+  </n-message-provider>
 </template>
 
 <script>

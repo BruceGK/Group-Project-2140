@@ -43,6 +43,45 @@ class IndexReader:
             query={"query_string": {"query": query}}
         )
 
+    def get_from_ids(self, index_name, ids, query, size=20, fields=["title"]):
+        highlight_config = {"fields": {
+            "main_text": {
+                "number_of_fragments": 1,
+                "fragment_size": 150
+            },
+            "abstract": {
+                "number_of_fragments": 1,
+                "fragment_size": 150
+            },
+            "title": {
+                "number_of_fragments": 1,
+                "fragment_size": 2000
+            }
+        }}
+        return self.es.search(
+            index=index_name,
+            _source=False,
+            highlight=highlight_config,
+            fields=fields,
+            size=size,
+            query={
+                "bool": {
+                    "must": [
+                        {
+                            "terms": {
+                                "_id": ids
+                            }
+                        },
+                        {
+                            "query_string": {
+                                "query": query
+                            }
+                        }
+                    ]
+                }
+            }
+        )
+
     def boolean_search(self, index_name, query, start_from=0, size=20, fields=["title"], highlight=True):
         reserved = '+ - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /'.split(' ')
         highlight_config = {"fields": {
