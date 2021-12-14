@@ -35,13 +35,14 @@
       </n-button>
       <n-select :style="{ width: '15%' }" :options="typeOptions" v-model:value="item.type"/>
       <!-- v-model:value="item.query" -->
-      <n-input :style="{ width: '60%' }" v-model:value="queryStr"/>
+      <n-input :style="{ width: '60%' }" v-model:value="item.query"/>
       <n-select :style="{ width: '15%' }" :options="fieldOptions" v-model:value="item.field"/>
     </n-input-group>
     </n-form-item>
     <n-button style="margin-top: 12px;" @click="onAddSelections" type="primary" circle>
       <n-icon size="40"><AddCircle24Filled/></n-icon>
     </n-button>
+    <n-button strong secondary round type="success" @click="onSearch">Search</n-button>
   </n-form>
 
   <n-list class="search-results" bordered>
@@ -54,6 +55,7 @@
       </n-list-item>
     </div>
   </n-list>
+  <n-pagination class="pagination" v-model:page="page" :page-count="pageCount" v-if="searchMode === 'boolean' && onClickSearch && pageCount > 0"/>
 </template>
 
 <script>
@@ -89,6 +91,8 @@ export default {
     ])
     const addSelection = ref([{type: 'and', query: '', field: 'title'}])
     const searchModeData = ref({})
+    const pageCount = ref(0)
+    const onClickSearch = ref(false)
 
     const onSwitchSearchMode = (curSearchMode) => {
       queryItems.value = []
@@ -124,7 +128,7 @@ export default {
 
     const onSearch = async () => {
       console.log(queryStr.value);
-      if (searching.value || !queryStr.value) return
+      if (searching.value || searchMode.value !== "boolean" && !queryStr.value) return
       queryItems.value = []
       searching.value = true
       try {
@@ -146,25 +150,23 @@ export default {
             },
           })
         } else if (searchMode.value === "boolean") {
-          console.log("boolean search hit")
+          console.log("boolean search hit", addSelection.value)
           // TODO...
+          onClickSearch.value = true
           resp = await service({
             method: "post",
             url: "/boolean",
             data: {
-                "queries": [
-                    {
-                        "query": "123",
-                        "field": "title",
-                        "type": "and"
-                    }
-                ],
+                "queries": addSelection.value,
                 "start": "1"
             },
             headers: {
               'Content-Type': 'application/json'
             }
           })
+          if(resp.total.value >= 20) {
+            pageCount.value = Math.round(resp.total.value / 20);
+          }
         }
 
         console.log("resp",resp)
@@ -195,7 +197,9 @@ export default {
       onAddSelections,
       addSelection,
       onSwitchSearchMode,
-      searchModeData
+      searchModeData,
+      pageCount,
+      onClickSearch
     }
   },
 }
@@ -219,5 +223,9 @@ em {
 
 .main_text em {
   color: #ea4335;
+}
+.pagination{
+  display: flex;
+  justify-content: center;
 }
 </style>
