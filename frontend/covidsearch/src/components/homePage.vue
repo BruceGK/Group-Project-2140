@@ -1,5 +1,5 @@
 <template>
-  <n-radio-group v-model:value="searchMode" name="searchmode">
+  <n-radio-group v-model:value="searchMode" name="searchmode" @change="onSwitchSearchMode(searchMode)">
     <n-radio-button value="keyword"> Keyword </n-radio-button>
     <n-radio-button value="ml"> Machine Learning </n-radio-button>
     <n-radio-button value="boolean"> Boolean </n-radio-button>
@@ -34,6 +34,7 @@
       <n-icon size="20"><Trash/></n-icon>
       </n-button>
       <n-select :style="{ width: '15%' }" :options="typeOptions" v-model:value="item.type"/>
+      <!-- v-model:value="item.query" -->
       <n-input :style="{ width: '60%' }" v-model:value="item.query"/>
       <n-select :style="{ width: '15%' }" :options="fieldOptions" v-model:value="item.field"/>
     </n-input-group>
@@ -41,6 +42,7 @@
     <n-button style="margin-top: 12px;" @click="onAddSelections" type="primary" circle>
       <n-icon size="40"><AddCircle24Filled/></n-icon>
     </n-button>
+    <n-button strong secondary round type="success" @click="onSearch">Search</n-button>
   </n-form>
 
   <n-list class="search-results" bordered>
@@ -53,6 +55,7 @@
       </n-list-item>
     </div>
   </n-list>
+  <n-pagination class="pagination" v-model:page="page" :page-count="pageCount" v-if="searchMode === 'boolean' && onClickSearch && pageCount > 0"/>
 </template>
 
 <script>
@@ -87,8 +90,18 @@ export default {
       { label: 'Main_text', value: 'main_text'}
     ])
     const addSelection = ref([{type: 'and', query: '', field: 'title'}])
+    const searchModeData = ref({})
+    const pageCount = ref(0)
+    const onClickSearch = ref(false)
 
-    const onLoadQueryItems = (currentRawObj) => {
+    const onSwitchSearchMode = (curSearchMode) => {
+      queryItems.value = []
+      if (Object.keys(searchModeData.value).includes(curSearchMode)) {
+        queryItems.value = searchModeData.value[curSearchMode]
+      }
+    }
+
+    const onLoadQueryItems = (searchMode,currentRawObj) => {
       let obj = { id: "", title: "", mainText: "" }
       for (const value of Object.values(currentRawObj)) {
         obj = {}
@@ -101,7 +114,7 @@ export default {
           : ""
         queryItems.value.push(obj)
       }
-      // chekc if abstract hightlight, if not exist then chekc main text
+      searchModeData.value[searchMode] = queryItems.value
     }
     const message = useMessage()
 
@@ -114,8 +127,8 @@ export default {
     }
 
     const onSearch = async () => {
-      // console.log(queryStr.value);
-      if (searching.value || !queryStr.value) return
+      console.log(queryStr.value);
+      if (searching.value || searchMode.value !== "boolean" && !queryStr.value) return
       queryItems.value = []
       searching.value = true
       try {
@@ -137,12 +150,28 @@ export default {
             },
           })
         } else if (searchMode.value === "boolean") {
+          console.log("boolean search hit", addSelection.value)
           // TODO...
+          onClickSearch.value = true
+          resp = await service({
+            method: "post",
+            url: "/boolean",
+            data: {
+                "queries": addSelection.value,
+                "start": "1"
+            },
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          if(resp.total.value >= 20) {
+            pageCount.value = Math.round(resp.total.value / 20);
+          }
         }
 
-        console.log(resp)
+        console.log("resp",resp)
         // queryItems.value = resp.hits;
-        onLoadQueryItems(resp.hits)
+        onLoadQueryItems(searchMode.value,resp.hits)
         console.log("queryItems", queryItems.value)
       } catch (err) {
         console.log(err)
@@ -166,7 +195,11 @@ export default {
       fieldOptions,
       onDeleteSelections,
       onAddSelections,
-      addSelection
+      addSelection,
+      onSwitchSearchMode,
+      searchModeData,
+      pageCount,
+      onClickSearch
     }
   },
 }
@@ -190,5 +223,9 @@ em {
 
 .main_text em {
   color: #ea4335;
+}
+.pagination{
+  display: flex;
+  justify-content: center;
 }
 </style>
