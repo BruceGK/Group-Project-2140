@@ -34,9 +34,9 @@
         </template>
         <n-list-item>
           <n-thing title="Abstract">
-            <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false">
+            <!-- <n-ellipsis expand-trigger="click" line-clamp="2" :tooltip="false"> -->
               {{ abstract }}
-            </n-ellipsis>
+            <!-- </n-ellipsis> -->
           </n-thing>
         </n-list-item>
         <n-list-item>

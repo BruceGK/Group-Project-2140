@@ -19,7 +19,7 @@
         />
         <n-button
           attr-type="submit"
-          @click="onSearch"
+          @click="onClickSearchBtn"
           class="search-btn"
           type="primary"
           ghost
@@ -77,7 +77,7 @@
     </div>
   </n-form>
 
-  <n-list class="search-results" bordered>
+  <n-list class="search-results" bordered v-if="queryItems.length > 0">
     <div v-for="query of queryItems" :key="query.id">
       <n-list-item>
         <router-link :to="'/detail/' + query.id">
@@ -89,16 +89,16 @@
   </n-list>
   <n-pagination
     class="pagination"
-    v-model:page="page"
+    :page="currPageNum"
     :page-count="pageCount"
-    @change="onChangePage(page)"
-    v-if="onClickSearch"
+    @change="onChangePage"
+    v-if="onShowPager || searching"
   />
 </template>
 
 <script>
 import service from "../utils/network"
-import { ref } from "vue"
+import { ref, reactive, computed } from "vue"
 import { useLoadingBar, useMessage } from "naive-ui"
 import { AddCircle24Filled } from "@vicons/fluent"
 import { Trash } from "@vicons/fa"
@@ -129,9 +129,28 @@ export default {
     ])
     const addSelection = ref([{ type: "and", query: "", field: "title" }])
     const searchModeData = ref({})
-    const pageCount = ref(1)
-    const onClickSearch = ref(false)
-    const currPageNum = ref(1)
+    const pageData = reactive({
+      keyword: { pageNum: 1, pageCount: 1 },
+      ml: { pageNum: 1, pageCount: 1 },
+      boolean: { pageNum: 1, pageCount: 1 },
+    })
+    const pageCount = computed({
+      get() {
+        return pageData[searchMode.value].pageCount
+      },
+      set(v) {
+        pageData[searchMode.value].pageCount = v
+      },
+    })
+    const onShowPager = computed(() => queryItems.value?.length > 0)
+    const currPageNum = computed({
+      get() {
+        return pageData[searchMode.value].pageNum
+      },
+      set(v) {
+        pageData[searchMode.value].pageNum = v
+      },
+    })
     const loadingBar = useLoadingBar()
 
     const onSwitchSearchMode = (curSearchMode) => {
@@ -171,8 +190,13 @@ export default {
       addSelection.value.push({ type: "and", query: "", field: "title" })
     }
 
+    const onClickSearchBtn = () => {
+      pageCount.value = 1
+      currPageNum.value = 1
+      onSearch()
+    }
+
     const onSearch = async () => {
-      console.log(queryStr.value)
       if (
         searching.value ||
         (searchMode.value !== "boolean" && !queryStr.value)
@@ -189,6 +213,7 @@ export default {
             url: "/search",
             params: {
               q: queryStr.value,
+              start: (currPageNum.value - 1) * 20,
             },
           })
         } else if (searchMode.value === "ml") {
@@ -197,13 +222,13 @@ export default {
             url: "/mlsearch",
             params: {
               q: queryStr.value,
+              start: (currPageNum.value - 1) * 20,
             },
           })
         } else if (searchMode.value === "boolean") {
           console.log("boolean search hit", addSelection.value)
           // TODO...
           console.log("start index", (currPageNum.value - 1) * pageCount.value)
-          onClickSearch.value = true
           resp = await service({
             method: "post",
             url: "/boolean",
@@ -215,9 +240,9 @@ export default {
               "Content-Type": "application/json",
             },
           })
-          if (resp.total.value >= 20) {
-            pageCount.value = Math.ceil(resp.total.value / 20)
-          }
+        }
+        if (resp.total.value >= 20) {
+          pageCount.value = Math.ceil(resp.total.value / 20)
         }
 
         console.log("resp", resp)
@@ -252,8 +277,10 @@ export default {
       onSwitchSearchMode,
       searchModeData,
       pageCount,
-      onClickSearch,
+      currPageNum,
+      onShowPager,
       onChangePage,
+      onClickSearchBtn,
     }
   },
 }
@@ -269,6 +296,9 @@ export default {
 .search-results {
   width: 65%;
   margin: 12px auto;
+  max-height: calc(100vh - 400px);
+  min-height: 320px;
+  overflow: auto;
 }
 
 em {
