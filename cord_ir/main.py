@@ -29,41 +29,40 @@ def boolean():
     queries = data['queries']
     esQueries = {
         "bool": {
-            "should": [],
+            "must": [],
         }
-
     }
-    queryBuild = esQueries['bool']['should']
+    queryBuild = esQueries['bool']['must']
     reserved = '+ - = && || > < ! ( ) { } [ ] ^ " ~ * ? : \ /'.split(' ')
+    musts = []
+    shoulds = []
+    must_nots = []
     for q in queries:
         for char in reserved:
             q['query'].replace(char, '\\' + char)
         if 'type' not in q or q['type'].lower() == 'and':
-            queryBuild.append({
-                "bool": {
-                    "must": [
-                        {"term": {q['field']: q['query']}}
-                    ]
-                }
-            })
+            musts.append({"term": {q['field']: q['query']}})
         elif q['type'].lower() == 'or':
-            queryBuild.append({
-                "bool": {
-                    "should": [
-                        {"term": {q['field']: q['query']}},
-                    ]
-                }
-            })
+            shoulds.append({"term": {q['field']: q['query']}})
         elif q['type'] == 'not':
-            queryBuild.append({
-                "bool": {
-                    "must_not": [
-                        {"term": {q['field']: q['query']}},
-                    ]
-                }
-            })
+            must_nots.append({"term": {q['field']: q['query']}})
         else:
             return 'unexpected query ' + jsonify(q), 400
+    queryBuild.extend(musts)
+    queryBuild.append({
+        "bool": {
+            "should": [
+                s for s in shoulds
+            ]
+        }
+    })
+    queryBuild.append({
+        "bool": {
+            "must_not": [
+                m for m in must_nots
+            ]
+        }
+    })
     reader = IndexReader()
     start = data['start']
     print(esQueries)
