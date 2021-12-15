@@ -55,7 +55,8 @@
       </n-list-item>
     </div>
   </n-list>
-  <n-pagination class="pagination" v-model:page="page" :page-count="pageCount" v-if="searchMode === 'boolean' && onClickSearch && pageCount > 0"/>
+  <n-pagination class="pagination" v-model:page="page" :page-count="pageCount" @change="onChangePage(page)"
+  v-if="onClickSearch"/>
 </template>
 
 <script>
@@ -91,8 +92,9 @@ export default {
     ])
     const addSelection = ref([{type: 'and', query: '', field: 'title'}])
     const searchModeData = ref({})
-    const pageCount = ref(0)
+    const pageCount = ref(1)
     const onClickSearch = ref(false)
+    const currPageNum = ref(1)
 
     const onSwitchSearchMode = (curSearchMode) => {
       queryItems.value = []
@@ -101,6 +103,11 @@ export default {
       }
     }
 
+    const onChangePage = (curPage) => {
+      // console.log("currr", curPage)
+      currPageNum.value = curPage;
+      onSearch()
+    }
     const onLoadQueryItems = (searchMode,currentRawObj) => {
       let obj = { id: "", title: "", mainText: "" }
       for (const value of Object.values(currentRawObj)) {
@@ -152,13 +159,14 @@ export default {
         } else if (searchMode.value === "boolean") {
           console.log("boolean search hit", addSelection.value)
           // TODO...
+          console.log("start index",(currPageNum.value - 1) * pageCount.value)
           onClickSearch.value = true
           resp = await service({
             method: "post",
             url: "/boolean",
             data: {
                 "queries": addSelection.value,
-                "start": "1"
+                "start": (currPageNum.value - 1) * 20
             },
             headers: {
               'Content-Type': 'application/json'
@@ -199,7 +207,8 @@ export default {
       onSwitchSearchMode,
       searchModeData,
       pageCount,
-      onClickSearch
+      onClickSearch,
+      onChangePage
     }
   },
 }
