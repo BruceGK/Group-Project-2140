@@ -1,8 +1,12 @@
 <template>
-  <n-radio-group v-model:value="searchMode" name="searchmode" @change="onSwitchSearchMode(searchMode)">
+  <n-radio-group
+    v-model:value="searchMode"
+    name="searchmode"
+    @change="onSwitchSearchMode(searchMode)"
+  >
     <n-radio-button value="keyword"> Keyword </n-radio-button>
     <n-radio-button value="ml"> Machine Learning </n-radio-button>
-    <n-radio-button value="boolean"> Boolean </n-radio-button>
+    <n-radio-button value="boolean"> Advanced </n-radio-button>
   </n-radio-group>
 
   <n-form class="search-wrapper" v-if="searchMode !== 'boolean'">
@@ -27,22 +31,50 @@
     </n-form-item>
   </n-form>
 
-  <n-form :show-feedback="false" class="search-wrapper" v-if="searchMode === 'boolean'">
+  <n-form
+    :show-feedback="false"
+    class="search-wrapper"
+    v-if="searchMode === 'boolean'"
+  >
     <n-form-item v-for="(item, index) in addSelection" :key="index">
       <n-input-group>
-      <n-button :disabled="index == 0" style="width: 10%" @click="onDeleteSelections(index)">
-      <n-icon size="20"><Trash/></n-icon>
-      </n-button>
-      <n-select :style="{ width: '15%' }" :options="typeOptions" v-model:value="item.type"/>
-      <!-- v-model:value="item.query" -->
-      <n-input :style="{ width: '60%' }" v-model:value="item.query"/>
-      <n-select :style="{ width: '15%' }" :options="fieldOptions" v-model:value="item.field"/>
-    </n-input-group>
+        <n-button
+          :disabled="index == 0"
+          style="width: 10%"
+          @click="onDeleteSelections(index)"
+        >
+          <n-icon size="20"><Trash /></n-icon>
+        </n-button>
+        <n-select
+          :style="{ width: '15%' }"
+          :options="typeOptions"
+          v-model:value="item.type"
+        />
+        <!-- v-model:value="item.query" -->
+        <n-input :style="{ width: '60%' }" v-model:value="item.query" />
+        <n-select
+          :style="{ width: '15%' }"
+          :options="fieldOptions"
+          v-model:value="item.field"
+        />
+      </n-input-group>
     </n-form-item>
-    <n-button style="margin-top: 12px;" @click="onAddSelections" type="primary" circle>
-      <n-icon size="40"><AddCircle24Filled/></n-icon>
-    </n-button>
-    <n-button strong secondary round type="success" @click="onSearch">Search</n-button>
+    <div style="margin-top: 12px; display: flex; justify-content: center">
+      <n-button @click="onAddSelections" type="primary" circle>
+        <n-icon size="40"><AddCircle24Filled /></n-icon>
+      </n-button>
+      <n-button
+        style="margin-left: 12px"
+        strong
+        secondary
+        round
+        type="success"
+        attr-type="submit"
+        :loading="searching"
+        @click="onSearch"
+        >Search</n-button
+      >
+    </div>
   </n-form>
 
   <n-list class="search-results" bordered>
@@ -55,16 +87,21 @@
       </n-list-item>
     </div>
   </n-list>
-  <n-pagination class="pagination" v-model:page="page" :page-count="pageCount" @change="onChangePage(page)"
-  v-if="onClickSearch"/>
+  <n-pagination
+    class="pagination"
+    v-model:page="page"
+    :page-count="pageCount"
+    @change="onChangePage(page)"
+    v-if="onClickSearch"
+  />
 </template>
 
 <script>
 import service from "../utils/network"
 import { ref } from "vue"
-import { useMessage } from "naive-ui"
-import { AddCircle24Filled } from '@vicons/fluent'
-import { Trash } from '@vicons/fa'
+import { useLoadingBar, useMessage } from "naive-ui"
+import { AddCircle24Filled } from "@vicons/fluent"
+import { Trash } from "@vicons/fa"
 
 export default {
   name: "homePage",
@@ -73,7 +110,7 @@ export default {
   },
   components: {
     AddCircle24Filled,
-    Trash
+    Trash,
   },
   setup() {
     const queryStr = ref("")
@@ -81,20 +118,21 @@ export default {
     const searchMode = ref("keyword")
     const searching = ref(false)
     const typeOptions = ref([
-        { label: 'And', value: 'and' },
-        { label: 'Or', value: 'or' },
-        { label: 'Not', value: 'not' }
+      { label: "And", value: "and" },
+      { label: "Or", value: "or" },
+      { label: "Not", value: "not" },
     ])
     const fieldOptions = ref([
-      { label: 'Title', value: 'title'},
-      { label: 'Abstract', value: 'abstract' },
-      { label: 'Main_text', value: 'main_text'}
+      { label: "Title", value: "title" },
+      { label: "Abstract", value: "abstract" },
+      { label: "Main_text", value: "main_text" },
     ])
-    const addSelection = ref([{type: 'and', query: '', field: 'title'}])
+    const addSelection = ref([{ type: "and", query: "", field: "title" }])
     const searchModeData = ref({})
     const pageCount = ref(1)
     const onClickSearch = ref(false)
     const currPageNum = ref(1)
+    const loadingBar = useLoadingBar()
 
     const onSwitchSearchMode = (curSearchMode) => {
       queryItems.value = []
@@ -105,10 +143,10 @@ export default {
 
     const onChangePage = (curPage) => {
       // console.log("currr", curPage)
-      currPageNum.value = curPage;
+      currPageNum.value = curPage
       onSearch()
     }
-    const onLoadQueryItems = (searchMode,currentRawObj) => {
+    const onLoadQueryItems = (searchMode, currentRawObj) => {
       let obj = { id: "", title: "", mainText: "" }
       for (const value of Object.values(currentRawObj)) {
         obj = {}
@@ -126,18 +164,23 @@ export default {
     const message = useMessage()
 
     const onDeleteSelections = (index) => {
-      addSelection.value.splice(index, 1);
+      addSelection.value.splice(index, 1)
     }
 
     const onAddSelections = () => {
-      addSelection.value.push({type: 'and', query: '', field: 'title'})
+      addSelection.value.push({ type: "and", query: "", field: "title" })
     }
 
     const onSearch = async () => {
-      console.log(queryStr.value);
-      if (searching.value || searchMode.value !== "boolean" && !queryStr.value) return
+      console.log(queryStr.value)
+      if (
+        searching.value ||
+        (searchMode.value !== "boolean" && !queryStr.value)
+      )
+        return
       queryItems.value = []
       searching.value = true
+      loadingBar.start()
       try {
         let resp
         if (searchMode.value === "keyword") {
@@ -159,30 +202,32 @@ export default {
         } else if (searchMode.value === "boolean") {
           console.log("boolean search hit", addSelection.value)
           // TODO...
-          console.log("start index",(currPageNum.value - 1) * pageCount.value)
+          console.log("start index", (currPageNum.value - 1) * pageCount.value)
           onClickSearch.value = true
           resp = await service({
             method: "post",
             url: "/boolean",
             data: {
-                "queries": addSelection.value,
-                "start": (currPageNum.value - 1) * 20
+              queries: addSelection.value,
+              start: (currPageNum.value - 1) * 20,
             },
             headers: {
-              'Content-Type': 'application/json'
-            }
+              "Content-Type": "application/json",
+            },
           })
-          if(resp.total.value >= 20) {
-            pageCount.value = Math.round(resp.total.value / 20);
+          if (resp.total.value >= 20) {
+            pageCount.value = Math.ceil(resp.total.value / 20)
           }
         }
 
-        console.log("resp",resp)
+        console.log("resp", resp)
         // queryItems.value = resp.hits;
-        onLoadQueryItems(searchMode.value,resp.hits)
+        onLoadQueryItems(searchMode.value, resp.hits)
         console.log("queryItems", queryItems.value)
+        loadingBar.finish()
       } catch (err) {
         console.log(err)
+        loadingBar.error()
         if (err.response?.status == 400) {
           message.error(err.response.data)
         } else {
@@ -208,7 +253,7 @@ export default {
       searchModeData,
       pageCount,
       onClickSearch,
-      onChangePage
+      onChangePage,
     }
   },
 }
@@ -233,8 +278,9 @@ em {
 .main_text em {
   color: #ea4335;
 }
-.pagination{
+.pagination {
   display: flex;
   justify-content: center;
+  margin-bottom: 12px;
 }
 </style>
