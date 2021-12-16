@@ -299,6 +299,7 @@ export default {
   max-height: calc(100vh - 400px);
   min-height: 320px;
   overflow: auto;
+  text-align: left
 }
 
 em {
